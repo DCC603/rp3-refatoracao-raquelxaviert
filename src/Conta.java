@@ -3,30 +3,16 @@ import java.util.List;
 
 public class Conta {
 
-    // TODO(#1) REFATORAR: Esses dados deveriam ficar em outro lugar
-    private String nomeCliente;
-    private String cpfCliente;
-    private String telefoneCliente;
-
-    // TODO(#1) REFATORAR: Esses dados deveriam ficar em outro lugar
-    private int numAgencia;
-    private int numConta;
-    private String gerente;
-
-    // TODO(#2) REFATORAR: Esse nome não é o ideal para representar o saldo da conta
-    private double valor;
+    private Cliente cliente;
+    private Agencia agencia;
+    private double saldo;
 
     private List<Operacao> operacoes;
 
-    public Conta(String nomeCliente, String cpfCliente, String telefoneCliente, int numAgencia, int numConta, String gerente, double valor) {
-        this.nomeCliente = nomeCliente;
-        this.cpfCliente = cpfCliente;
-        this.telefoneCliente = telefoneCliente;
-        this.numAgencia = numAgencia;
-        this.numConta = numConta;
-        this.gerente = gerente;
-        this.valor = valor;
-
+    public Conta(String nomeCliente, String cpfCliente, String telefoneCliente, int numAgencia, int numConta, String gerente, double saldo) {
+        this.cliente = new Cliente(nomeCliente, cpfCliente, telefoneCliente);
+        this.agencia = new Agencia(numAgencia, numConta, gerente);
+        this.saldo = saldo;
         this.operacoes = new ArrayList<>();
     }
 
@@ -34,40 +20,44 @@ public class Conta {
         this(null, null, null, 0, 0, null, 0);
     }
 
-    // TODO(#3) REFATORAR: Muita responsabilidade para o mesmo método
     public void realizarOperacao(char tipo, int valor) {
         Operacao op = new Operacao(tipo, valor);
         this.operacoes.add(op);
+        atualizarSaldo(tipo, valor);
+    }
 
+    private void atualizarSaldo(char tipo, int valor) {
         if (tipo == 'd')
-            this.valor += valor;
+            this.saldo += valor;
         else if(tipo == 's')
-            this.valor -= valor;
+            this.saldo -= valor;
     }
 
     public String toString() {
-        // TODO(#4) REFATORAR: Esses dados não estão relacionados a conta
-        String dadosCliente = String.format("CPF: %s\nNome: %s\nTelefone: %s",
-                this.cpfCliente, this.nomeCliente, this.telefoneCliente);
-
-        // TODO(#4) REFATORAR: Esses dados não estão relacinados a conta
-        String dadosConta = String.format("Ag.: %d\nConta: %d\nGerente: %s\nSaldo: %.2f",
-                this.numAgencia, this.numConta, this.gerente, this.valor);
-
-        // TODO(#5) REFATORAR: Essa operação não deveria estar sendo realizada neste método
-        String dadosExtrato = "";
-        for(Operacao op : this.operacoes) {
-            dadosExtrato += op.toString() + "\n";
-        }
-
         return "-----CLIENTE-----\n" +
-                dadosCliente +
+                getDadosCliente() +
                 "\n\n" +
                 "-----CONTA-----\n" +
-                dadosConta +
+                getDadosConta() +
                 "\n\n" +
                 "-----EXTRATO-----\n" +
-                dadosExtrato +
+                getExtrato() +
                 "\n";
+    }
+
+    private String getDadosCliente() {
+        return cliente.toString();
+    }
+
+    private String getDadosConta() {
+        return agencia.toString() + String.format("\nSaldo: %.2f", saldo);
+    }
+
+    private String getExtrato() {
+        String extrato = "";
+        for(Operacao op : operacoes) {
+            extrato += op.toString() + "\n";
+        }
+        return extrato;
     }
 }
